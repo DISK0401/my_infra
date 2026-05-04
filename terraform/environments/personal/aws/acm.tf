@@ -6,4 +6,8 @@ resource "aws_acm_certificate" "disk0401_net" {
   lifecycle {
     prevent_destroy = true
   }
+
+  tags = {
+    Name = "MyWebSite"
+  }
 }

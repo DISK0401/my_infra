@@ -6,7 +6,7 @@ resource "aws_cloudfront_distribution" "disk0401_net" {
   default_root_object = "index.html"
   price_class         = "PriceClass_200"
   http_version        = "http2"
-  comment             = ""
+  comment             = "HP用CloudFront"
 
   aliases = ["disk0401.net"]
 
@@ -55,5 +55,7 @@ resource "aws_cloudfront_distribution" "disk0401_net" {
     }
   }
 
-  tags = {}
+  tags = {
+    Name = "MyWebSite"
+  }
 }
