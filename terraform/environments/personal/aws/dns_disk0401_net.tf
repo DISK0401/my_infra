@@ -1,5 +1,7 @@
 resource "aws_route53_zone" "disk0401_net" {
   name = "disk0401.net"
+  comment = "HostedZone created by Route53 Registrar"
+  force_destroy = false
 }
 
 resource "aws_route53_record" "disk0401_net_disk0401_net_a" {
@@ -26,7 +28,7 @@ resource "aws_route53_record" "disk0401_net_disk0401_net_txt" {
   name    = "disk0401.net"
   type    = "TXT"
   ttl     = 300
-  records = ["\"_acme-challenge.disk0401.net.=NIPxl0bemV4ujBMBF5Zzlp83O-d7IQLGw7VOqwrdDpA\"", "\"google-site-verification=_KssjlmvFrJIURTHPHs9JegfDIc5y8-nAUldxj6BMwc\""]
+  records = ["_acme-challenge.disk0401.net.=NIPxl0bemV4ujBMBF5Zzlp83O-d7IQLGw7VOqwrdDpA", "google-site-verification=_KssjlmvFrJIURTHPHs9JegfDIc5y8-nAUldxj6BMwc"]
 }
 
 resource "aws_route53_record" "disk0401_net_at_disk0401_net_txt" {
@@ -34,7 +36,7 @@ resource "aws_route53_record" "disk0401_net_at_disk0401_net_txt" {
   name    = "\\100.disk0401.net"
   type    = "TXT"
   ttl     = 3600
-  records = ["\"v=spf1 include:_spf.google.com ~all\""]
+  records = ["v=spf1 include:_spf.google.com ~all"]
 }
 
 resource "aws_route53_record" "disk0401_net__343d083f77da3f1897e6b18e40008044_disk0401_net_cname" {
@@ -50,7 +52,7 @@ resource "aws_route53_record" "disk0401_net__dmarc_disk0401_net_txt" {
   name    = "_dmarc.disk0401.net"
   type    = "TXT"
   ttl     = 3600
-  records = ["\"v=DMARC1; p=none; rua=mailto:dmarc-reports@disk0401.net\""]
+  records = ["v=DMARC1; p=none; rua=mailto:dmarc-reports@disk0401.net"]
 }
 
 resource "aws_route53_record" "disk0401_net_google__domainkey_disk0401_net_txt" {
@@ -58,7 +60,7 @@ resource "aws_route53_record" "disk0401_net_google__domainkey_disk0401_net_txt" 
   name    = "google._domainkey.disk0401.net"
   type    = "TXT"
   ttl     = 3600
-  records = ["\"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkeGwFuJdVfBFo+rT3vgi/NmKN9/vJQCKZbdW9C/mRFoluoBLCx9ASwDlA3OF9kceXweAPfvN69f8n4JiQx+wk0na6i1GdZbFjgSPMcPlkPcK8/UEyVPjOSYZbtNoQjA+oJzoQfWi/W/oepKD/w9b5z/NxVWbrkX9F2oU+vwX5ggJ78oKqCjX1Z5j4LRtm0+ex\" \"OsmU5vD7dVv1RTQ3g6HzDQiLnJHfdRy8FpQ3nfn2XPYlVSxva/40nvzJL7VdS1FuVZFm0hFXEr6n041RoAjiBGITJZau55KKZuPI\" \"grWShjQhWhqUSUD4a0Ru1ujsZfPHlVhq0KbgMf19FC1W8UZnwIDAQAB\""]
+  records = ["v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkeGwFuJdVfBFo+rT3vgi/NmKN9/vJQCKZbdW9C/mRFoluoBLCx9ASwDlA3OF9kceXweAPfvN69f8n4JiQx+wk0na6i1GdZbFjgSPMcPlkPcK8/UEyVPjOSYZbtNoQjA+oJzoQfWi/W/oepKD/w9b5z/NxVWbrkX9F2oU+vwX5ggJ78oKqCjX1Z5j4LRtm0+ex\" \"OsmU5vD7dVv1RTQ3g6HzDQiLnJHfdRy8FpQ3nfn2XPYlVSxva/40nvzJL7VdS1FuVZFm0hFXEr6n041RoAjiBGITJZau55KKZuPI\" \"grWShjQhWhqUSUD4a0Ru1ujsZfPHlVhq0KbgMf19FC1W8UZnwIDAQAB"]
 }
 
 resource "aws_route53_record" "disk0401_net_game_disk0401_net_a" {
@@ -90,7 +92,7 @@ resource "aws_route53_record" "disk0401_net__amazonses_nas_disk0401_net_txt" {
   name    = "_amazonses.nas.disk0401.net"
   type    = "TXT"
   ttl     = 1800
-  records = ["\"z13097BdqT4oHWI1oCMccF3046q5NdwoSXkoHJVF9GM=\""]
+  records = ["z13097BdqT4oHWI1oCMccF3046q5NdwoSXkoHJVF9GM="]
 }
 
 resource "aws_route53_record" "disk0401_net_joh4yd3dpm3ke2nxjba5qhx5seyvu5ra__domainkey_nas_disk0401_net_cname" {
