@@ -44,7 +44,7 @@ jobs:
           TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
         run: |
           ws_id=$(.github/scripts/tfc-workspace-id.sh disk0401 "${{ matrix.workspace }}")
-          run_id=$(.github/scripts/tfc-find-run.sh "$ws_id" "${{ github.event.pull_request.head.sha }}" true)
+          run_id=$(.github/scripts/tfc-find-run.sh disk0401 "$ws_id" "${{ github.event.pull_request.head.sha }}" true)
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
 
       - name: Wait for plan

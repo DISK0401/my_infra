@@ -10,7 +10,7 @@ pr_number="$3"
 label="$4"
 
 ws_id=$(workspace_id_for "disk0401" "$workspace_name")
-run_id=$("${script_dir}/tfc-find-run.sh" "$ws_id" "$commit_sha" false)
+run_id=$("${script_dir}/tfc-find-run.sh" "disk0401" "$ws_id" "$commit_sha" false)
 
 "${script_dir}/tfc-confirm-apply.sh" "$run_id"
 status=$("${script_dir}/tfc-poll-run.sh" "$run_id" 900)

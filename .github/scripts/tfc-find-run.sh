@@ -1,40 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Usage: tfc-find-run.sh <workspace_id> <commit_sha> <speculative:true|false>
+# Usage: tfc-find-run.sh <org> <workspace_id> <commit_sha> <speculative:true|false>
+#
+# Note: GET /workspaces/:id/runs (without any filter/search query) has been observed
+# to return an empty result set for some workspaces even when runs exist, while
+# GET /organizations/:org/runs?search[commit]=<sha> reliably returns matching runs.
+# We therefore search at the organization level and filter by workspace client-side.
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${script_dir}/tfc-common.sh"
 
-workspace_id="$1"
-commit_sha="$2"
-speculative="$3"
+org="$1"
+workspace_id="$2"
+commit_sha="$3"
+speculative="$4"
 
-page=1
-while [ "$page" -le 5 ]; do
-  resp=$(tfc_api GET "/workspaces/${workspace_id}/runs?page%5Bnumber%5D=${page}&page%5Bsize%5D=20")
-  run_count=$(echo "$resp" | jq '.data | length')
-  if [ "$run_count" -eq 0 ]; then
-    break
-  fi
+resp=$(tfc_api GET "/organizations/${org}/runs?search%5Bcommit%5D=${commit_sha}")
 
-  ids=$(echo "$resp" | jq -r '.data[].id')
-  for run_id in $ids; do
-    cv_id=$(echo "$resp" | jq -r --arg id "$run_id" '.data[] | select(.id==$id) | .relationships."configuration-version".data.id')
-    is_spec=$(echo "$resp" | jq -r --arg id "$run_id" '.data[] | select(.id==$id) | .attributes."plan-only"')
+run_id=$(echo "$resp" | jq -r --arg ws "$workspace_id" --arg spec "$speculative" \
+  '.data[] | select(.relationships.workspace.data.id==$ws) | select((.attributes."plan-only"|tostring)==$spec) | .id' | head -n1)
 
-    if [ "$is_spec" != "$speculative" ]; then
-      continue
-    fi
+if [ -z "$run_id" ]; then
+  echo "ERROR: run not found for commit ${commit_sha} in workspace ${workspace_id} (speculative=${speculative})" >&2
+  exit 1
+fi
 
-    ingress=$(tfc_api GET "/configuration-versions/${cv_id}/ingress-attributes" 2>/dev/null || echo '{}')
-    sha=$(echo "$ingress" | jq -r '.data.attributes."commit-sha" // empty')
-
-    if [ "$sha" = "$commit_sha" ]; then
-      echo "$run_id"
-      exit 0
-    fi
-  done
-  page=$((page + 1))
-done
-
-echo "ERROR: run not found for commit ${commit_sha} (speculative=${speculative})" >&2
-exit 1
+echo "$run_id"
