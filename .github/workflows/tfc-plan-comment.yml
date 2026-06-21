@@ -1,0 +1,74 @@
+name: TFC Plan Comment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "terraform/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  plan-comment:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: aws
+            path: terraform/environments/personal/aws
+            workspace: personal-aws
+          - name: cloudflare
+            path: terraform/environments/personal/cloudflare
+            workspace: personal-cloudflare
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes in workspace path
+        id: changes
+        run: |
+          if git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" | grep -q "^${{ matrix.path }}/"; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find TFC run
+        if: steps.changes.outputs.changed == 'true'
+        id: find
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+        run: |
+          ws_id=$(.github/scripts/tfc-workspace-id.sh disk0401 "${{ matrix.workspace }}")
+          run_id=$(.github/scripts/tfc-find-run.sh disk0401 "$ws_id" "${{ github.event.pull_request.head.sha }}" true)
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for plan
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+        run: .github/scripts/tfc-poll-run.sh "${{ steps.find.outputs.run_id }}" 600
+
+      - name: Build plan comment body
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+        run: |
+          {
+            echo '```'
+            .github/scripts/tfc-get-plan-log.sh "${{ steps.find.outputs.run_id }}" | tail -c 60000
+            echo '```'
+            echo
+            echo "[Terraform Cloudで詳細を見る](https://app.terraform.io/app/disk0401/workspaces/${{ matrix.workspace }}/runs/${{ steps.find.outputs.run_id }})"
+          } > plan_body.md
+
+      - name: Post comment
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          .github/scripts/post-pr-comment.sh "${{ github.event.pull_request.number }}" "<!-- tfc-plan:${{ matrix.name }} -->" plan_body.md

@@ -1,6 +1,10 @@
 # Local .terraform directories
 .terraform/
 
+# Stray terraform binary downloaded by cf-terraforming when run without
+# --terraform-binary-path
+terraform/environments/personal/cloudflare/terraform
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
