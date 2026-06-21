@@ -16,8 +16,8 @@ tmp_body=$(mktemp)
 
 if [ -n "$existing_id" ]; then
   gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${existing_id}" \
-    -f body=@"$tmp_body" > /dev/null
+    -F body=@"$tmp_body" > /dev/null
 else
   gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${pr_number}/comments" \
-    -f body=@"$tmp_body" > /dev/null
+    -F body=@"$tmp_body" > /dev/null
 fi
