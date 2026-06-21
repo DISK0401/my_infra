@@ -1,0 +1,71 @@
+name: TFC Apply Comment
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  apply:
+    if: |
+      github.event.issue.pull_request != null &&
+      github.event.comment.body == '/apply' &&
+      github.event.comment.user.login == 'DISK0401'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify PR is merged
+        id: pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          merged=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}" --jq '.merged')
+          merge_sha=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}" --jq '.merge_commit_sha')
+          if [ "$merged" != "true" ]; then
+            gh api "repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" \
+              -f body="このPRはまだmergeされていないため /apply は実行できません。" > /dev/null
+            exit 1
+          fi
+          echo "merge_sha=$merge_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Determine changed workspaces
+        id: changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          files=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}/files" --paginate --jq '.[].filename')
+          aws_changed=false
+          cf_changed=false
+          if echo "$files" | grep -q "^terraform/environments/personal/aws/"; then aws_changed=true; fi
+          if echo "$files" | grep -q "^terraform/environments/personal/cloudflare/"; then cf_changed=true; fi
+          echo "aws_changed=$aws_changed" >> "$GITHUB_OUTPUT"
+          echo "cf_changed=$cf_changed" >> "$GITHUB_OUTPUT"
+
+      - name: Apply aws workspace
+        if: steps.changes.outputs.aws_changed == 'true'
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          .github/scripts/tfc-apply-and-report.sh \
+            "personal-aws" \
+            "${{ steps.pr.outputs.merge_sha }}" \
+            "${{ github.event.issue.number }}" \
+            "aws"
+
+      - name: Apply cloudflare workspace
+        if: steps.changes.outputs.cf_changed == 'true'
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          .github/scripts/tfc-apply-and-report.sh \
+            "personal-cloudflare" \
+            "${{ steps.pr.outputs.merge_sha }}" \
+            "${{ github.event.issue.number }}" \
+            "cloudflare"
