@@ -24,4 +24,10 @@ resource "cloudflare_zero_trust_access_policy" "tomioka_home" {
       id = cloudflare_zero_trust_access_group.tomioka_jcom_ip.id
     }
   }]
+  # IPだけでなく本人のメールアドレスも必須にする(ネットワーク位置のみへの依存を避けるため)
+  require = [{
+    email = {
+      email = "mail@disk0401.net"
+    }
+  }]
 }

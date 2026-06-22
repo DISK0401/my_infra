@@ -81,16 +81,3 @@ resource "cloudflare_dns_record" "disk0401_com_synology_cname" {
     flatten_cname = false
   }
 }
-
-resource "cloudflare_dns_record" "disk0401_com_winserver_cname" {
-  zone_id = cloudflare_zone.disk0401_com.id
-  name    = "winserver.disk0401.com"
-  type    = "CNAME"
-  content = "${cloudflare_zero_trust_tunnel_cloudflared.openwrt.id}.cfargotunnel.com"
-  ttl     = 1
-  proxied = true
-  tags    = []
-  settings = {
-    flatten_cname = false
-  }
-}
