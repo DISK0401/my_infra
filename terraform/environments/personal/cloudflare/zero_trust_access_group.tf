@@ -19,6 +19,11 @@ resource "cloudflare_zero_trust_access_group" "tomioka_en_hikari_ip" {
     ip = {
       ip = "106.73.185.193/32"
     }
+    }, {
+    # フレッツ光クロス IPv6 PD(OpenWrt WAN6)
+    ip = {
+      ip = "240b:11:b9d0:7600::/56"
+    }
   }]
 }
 
