@@ -12,8 +12,17 @@ label="$4"
 ws_id=$(workspace_id_for "disk0401" "$workspace_name")
 run_id=$("${script_dir}/tfc-find-run.sh" "disk0401" "$ws_id" "$commit_sha" false)
 
-"${script_dir}/tfc-confirm-apply.sh" "$run_id"
-status=$("${script_dir}/tfc-poll-run.sh" "$run_id" 900)
+# merge直後はTFC側のRunがまだplan実行中で "planned"(apply確認待ち) に
+# なっていないことがあり、その状態でactions/applyを叩くとTFC APIが
+# 409を返す。そのため先にplan完了を待ってからapplyを確定する。
+plan_status=$("${script_dir}/tfc-poll-run.sh" "$run_id" 600)
+
+if [ "$plan_status" = "planned" ]; then
+  "${script_dir}/tfc-confirm-apply.sh" "$run_id"
+  status=$("${script_dir}/tfc-poll-run.sh" "$run_id" 900)
+else
+  status="$plan_status"
+fi
 
 body_file=$(mktemp)
 {
