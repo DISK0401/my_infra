@@ -15,6 +15,17 @@ resource "aws_route53_record" "disk0401_net_disk0401_net_a" {
   }
 }
 
+resource "aws_route53_record" "disk0401_net_disk0401_net_aaaa" {
+  zone_id = aws_route53_zone.disk0401_net.id
+  name    = "disk0401.net"
+  type    = "AAAA"
+  alias {
+    name                   = "d1tmali2uve9f9.cloudfront.net"
+    zone_id                = "Z2FDTNDATAQYW2"
+    evaluate_target_health = false
+  }
+}
+
 resource "aws_route53_record" "disk0401_net_disk0401_net_mx" {
   zone_id = aws_route53_zone.disk0401_net.id
   name    = "disk0401.net"
