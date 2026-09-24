@@ -1,0 +1,21 @@
+name: NS Glue Check
+
+on:
+  schedule:
+    - cron: "17 21 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure dig is installed
+        run: command -v dig || (sudo apt-get update && sudo apt-get install -y dnsutils)
+
+      - name: Check disk0401.net glue records
+        run: .github/scripts/check-ns-glue.sh

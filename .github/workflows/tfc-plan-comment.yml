@@ -60,7 +60,7 @@ jobs:
         run: |
           {
             echo '```'
-            .github/scripts/tfc-get-plan-log.sh "${{ steps.find.outputs.run_id }}" | tail -c 60000
+            .github/scripts/tfc-get-plan-log.sh "${{ steps.find.outputs.run_id }}" | .github/scripts/tfc-log-summary.sh plan
             echo '```'
             echo
             echo "[Terraform Cloudで詳細を見る](https://app.terraform.io/app/disk0401/workspaces/${{ matrix.workspace }}/runs/${{ steps.find.outputs.run_id }})"
