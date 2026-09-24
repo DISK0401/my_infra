@@ -1,8 +1,7 @@
-# HE.net IPv6 Certification "Sage" 取得のための一時構成。
-# Sageはドメイン配下(in-bailiwick)のネームサーバーにTLDでIPv6 glueがあることを要求するため、
-# 既存Route53ネームサーバーと同一IPを指す white-label NS (ns1-4.disk0401.net) をglue付きで委任する。
-# 合格後は委任先を元の awsdns-* に戻す。NSの委任TTLが172800秒のため、
-# ns1-4のA/AAAAレコードは戻してから2日以上経ってから削除すること。
+# Route53が割り当てた awsdns-* と同一IPを指す white-label NS (ns1-4.disk0401.net) を、
+# レジストラでIPv4/IPv6 glue付きで委任する(IPv6のみの環境でも追加解決なしで引けるようにするため)。
+# glueはIPの固定登録なので、AWS側のIPが変わると壊れる。ずれは .github/workflows/ns-glue-check.yml で
+# 日次検知している。対応表を変える場合は .github/scripts/check-ns-glue.sh も揃えること。
 
 locals {
   disk0401_net_white_label_ns = {
@@ -45,11 +44,6 @@ resource "aws_route53_record" "disk0401_net_ns" {
     aws_route53_record.disk0401_net_white_label_ns_a,
     aws_route53_record.disk0401_net_white_label_ns_aaaa,
   ]
-}
-
-import {
-  to = aws_route53domains_registered_domain.disk0401_net
-  id = "disk0401.net"
 }
 
 resource "aws_route53domains_registered_domain" "disk0401_net" {

@@ -39,15 +39,7 @@ resource "aws_route53_record" "disk0401_net_disk0401_net_txt" {
   name    = "disk0401.net"
   type    = "TXT"
   ttl     = 300
-  records = ["_acme-challenge.disk0401.net.=NIPxl0bemV4ujBMBF5Zzlp83O-d7IQLGw7VOqwrdDpA", "google-site-verification=_KssjlmvFrJIURTHPHs9JegfDIc5y8-nAUldxj6BMwc"]
-}
-
-resource "aws_route53_record" "disk0401_net_at_disk0401_net_txt" {
-  zone_id = aws_route53_zone.disk0401_net.id
-  name    = "\\100.disk0401.net"
-  type    = "TXT"
-  ttl     = 3600
-  records = ["v=spf1 include:_spf.google.com ~all"]
+  records = ["_acme-challenge.disk0401.net.=NIPxl0bemV4ujBMBF5Zzlp83O-d7IQLGw7VOqwrdDpA", "google-site-verification=_KssjlmvFrJIURTHPHs9JegfDIc5y8-nAUldxj6BMwc", "v=spf1 include:_spf.google.com ~all"]
 }
 
 resource "aws_route53_record" "disk0401_net__343d083f77da3f1897e6b18e40008044_disk0401_net_cname" {
