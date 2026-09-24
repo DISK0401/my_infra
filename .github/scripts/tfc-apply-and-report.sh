@@ -33,7 +33,7 @@ body_file=$(mktemp)
   fi
   echo
   echo '```'
-  "${script_dir}/tfc-get-apply-log.sh" "$run_id" | tail -c 60000
+  "${script_dir}/tfc-get-apply-log.sh" "$run_id" | "${script_dir}/tfc-log-summary.sh" apply
   echo '```'
   echo
   echo "[Terraform Cloudで詳細を見る](https://app.terraform.io/app/disk0401/workspaces/${workspace_name}/runs/${run_id})"
